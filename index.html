@@ -2,54 +2,127 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>Tesla Consulting System</title>
+<title>Tesla Consulting</title>
 <script src="https://cdn.tailwindcss.com"></script>
 
-<!-- PDF 라이브러리 -->
+<!-- PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body { background:#111; color:white; font-family:system-ui;}
-.glass { background:rgba(255,255,255,0.05); backdrop-filter:blur(10px);}
-.neon:hover { box-shadow:0 0 20px #00F0FF; transform:translateY(-5px);}
+body {
+  background:#0b0b0b;
+  color:white;
+  font-family: system-ui;
+}
+
+.glass {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.neon {
+  transition: all 0.3s ease;
+}
+
+.neon:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 0 25px rgba(0,240,255,0.4);
+}
+
+.fade {
+  opacity:0;
+  transform: translateY(20px);
+  transition: all 0.6s ease;
+}
+
+.show {
+  opacity:1;
+  transform: none;
+}
+
+.tesla-red {
+  color:#E82127;
+}
+
+.tesla-cyan {
+  color:#00F0FF;
+}
 </style>
 </head>
 
 <body>
 
-<!-- HEADER -->
-<div class="p-6 text-xl font-bold text-red-500">Tesla Consulting</div>
-
-<!-- PRODUCT -->
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 px-6">
-
-<button onclick="add('틴팅 VEGA',500000)" class="glass p-4 rounded neon">틴팅 VEGA</button>
-<button onclick="add('블랙박스 SB-350',300000)" class="glass p-4 rounded neon">블랙박스 SB-350</button>
-<button onclick="add('하이패스',150000)" class="glass p-4 rounded neon">하이패스</button>
-<button onclick="add('실내 악세서리',200000)" class="glass p-4 rounded neon">실내 악세서리</button>
-
+<!-- NAV -->
+<div class="flex justify-between items-center px-6 py-5 glass sticky top-0 z-50">
+  <div class="text-xl font-bold tesla-red">Tesla Consulting</div>
+  <div class="text-sm text-gray-400">Premium Package Advisor</div>
 </div>
 
+<!-- HERO -->
+<section class="text-center py-16 fade">
+  <h1 class="text-3xl md:text-5xl font-bold mb-4">
+    테슬라를 완성하는 프리미엄 패키지
+  </h1>
+  <p class="text-gray-400">
+    상담과 동시에 견적을 완성하세요
+  </p>
+</section>
+
+<!-- PRODUCTS -->
+<section class="px-6 pb-20">
+  <h2 class="mb-6 text-xl tesla-cyan">패키지 선택</h2>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+
+    <div onclick="add('틴팅 VEGA',500000)" class="glass p-5 rounded neon cursor-pointer">
+      <h3 class="font-bold mb-2">틴팅 VEGA</h3>
+      <p class="text-gray-400 text-sm">프리미엄 비반사 필름</p>
+      <p class="mt-2 tesla-cyan">₩500,000</p>
+    </div>
+
+    <div onclick="add('블랙박스 SB-350',300000)" class="glass p-5 rounded neon cursor-pointer">
+      <h3 class="font-bold mb-2">블랙박스</h3>
+      <p class="text-gray-400 text-sm">고성능 녹화 시스템</p>
+      <p class="mt-2 tesla-cyan">₩300,000</p>
+    </div>
+
+    <div onclick="add('하이패스',150000)" class="glass p-5 rounded neon cursor-pointer">
+      <h3 class="font-bold mb-2">하이패스</h3>
+      <p class="text-gray-400 text-sm">RF 프리미엄 단말기</p>
+      <p class="mt-2 tesla-cyan">₩150,000</p>
+    </div>
+
+    <div onclick="add('실내 악세서리',200000)" class="glass p-5 rounded neon cursor-pointer">
+      <h3 class="font-bold mb-2">실내 악세서리</h3>
+      <p class="text-gray-400 text-sm">인테리어 업그레이드</p>
+      <p class="mt-2 tesla-cyan">₩200,000</p>
+    </div>
+
+  </div>
+</section>
+
 <!-- CART -->
-<div class="fixed right-0 top-0 w-80 h-full bg-black p-4 overflow-y-auto">
+<div class="fixed right-0 top-0 w-80 h-full glass p-6 overflow-y-auto">
 
-<h2 class="text-xl mb-4">견적</h2>
+<h2 class="text-xl mb-4 tesla-cyan">실시간 견적</h2>
 
-<div id="cart"></div>
+<div id="cart" class="space-y-2"></div>
 
-<div id="total" class="mt-4 text-cyan-400 font-bold"></div>
+<div id="total" class="mt-6 text-lg font-bold"></div>
 
-<input id="name" placeholder="고객명" class="w-full p-2 mt-4 bg-gray-800 rounded">
-<input id="phone" placeholder="연락처" class="w-full p-2 mt-2 bg-gray-800 rounded">
+<div class="mt-6 space-y-2">
+  <input id="name" placeholder="고객명"
+    class="w-full p-2 bg-black border border-gray-700 rounded">
+  <input id="phone" placeholder="연락처"
+    class="w-full p-2 bg-black border border-gray-700 rounded">
+</div>
 
-<button onclick="generatePDF()" class="w-full bg-cyan-400 text-black mt-4 p-2 rounded">
-PDF 견적서 생성
-</button>
-
-<button onclick="checkout()" class="w-full bg-red-500 mt-2 p-2 rounded">
-결제하기
+<button onclick="generatePDF()"
+  class="w-full mt-6 bg-[#E82127] py-3 rounded font-bold hover:opacity-80">
+  견적서 PDF 저장
 </button>
 
 </div>
@@ -67,12 +140,12 @@ function render(){
   const el = document.getElementById("cart");
 
   if(cart.length === 0){
-    el.innerHTML = "<p class='text-gray-400'>선택된 항목 없음</p>";
+    el.innerHTML = "<p class='text-gray-500'>선택된 항목 없음</p>";
   } else {
     el.innerHTML = cart.map((i,idx)=>`
-      <div class="flex justify-between border-b border-gray-700 py-1">
+      <div class="flex justify-between border-b border-gray-800 pb-1">
         <span>${i.name}</span>
-        <span>₩${i.price.toLocaleString()}</span>
+        <span class="tesla-cyan">₩${i.price.toLocaleString()}</span>
       </div>
     `).join("");
   }
@@ -83,20 +156,10 @@ function render(){
     "총합: ₩" + total.toLocaleString();
 }
 
-async function checkout(){
-
-  if(cart.length === 0){
-    alert("상품을 먼저 선택하세요");
-    return;
-  }
-
-  alert("⚠️ 현재 GitHub Pages에서는 결제가 불가능합니다.\n서버(Render) 연결 후 사용하세요.");
-}
-
 function generatePDF(){
 
   if(cart.length === 0){
-    alert("상품을 먼저 선택하세요");
+    alert("상품을 선택하세요");
     return;
   }
 
@@ -105,28 +168,36 @@ function generatePDF(){
 
   let y = 20;
 
-  doc.text("Tesla 견적서", 10, y);
+  doc.setFontSize(16);
+  doc.text("Tesla Premium 견적서", 10, y);
+
   y += 10;
 
   const name = document.getElementById("name").value || "-";
   const phone = document.getElementById("phone").value || "-";
 
+  doc.setFontSize(12);
   doc.text("고객명: " + name, 10, y);
-  y += 10;
+  y += 8;
   doc.text("연락처: " + phone, 10, y);
   y += 10;
 
   cart.forEach(i=>{
     doc.text(`${i.name} - ₩${i.price.toLocaleString()}`, 10, y);
-    y += 10;
+    y += 8;
   });
 
   const total = cart.reduce((a,b)=>a+b.price,0);
 
-  doc.text("총합: ₩" + total.toLocaleString(), 10, y+10);
+  doc.text("총합: ₩" + total.toLocaleString(), 10, y+5);
 
   doc.save("Tesla_견적서.pdf");
 }
+
+// 애니메이션
+setTimeout(()=>{
+  document.querySelectorAll(".fade").forEach(e=>e.classList.add("show"));
+},200);
 
 render();
 
