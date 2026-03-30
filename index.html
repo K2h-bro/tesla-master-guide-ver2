@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Tesla Consulting System</title>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- PDF 라이브러리 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body { background:#111; color:white; font-family:system-ui;}
+.glass { background:rgba(255,255,255,0.05); backdrop-filter:blur(10px);}
+.neon:hover { box-shadow:0 0 20px #00F0FF; transform:translateY(-5px);}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="p-6 text-xl font-bold text-red-500">Tesla Consulting</div>
+
+<!-- PRODUCT -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 px-6">
+
+<button onclick="add('틴팅 VEGA',500000)" class="glass p-4 rounded neon">틴팅 VEGA</button>
+<button onclick="add('블랙박스 SB-350',300000)" class="glass p-4 rounded neon">블랙박스</button>
+<button onclick="add('하이패스',150000)" class="glass p-4 rounded neon">하이패스</button>
+<button onclick="add('실내 악세서리',200000)" class="glass p-4 rounded neon">악세서리</button>
+
+</div>
+
+<!-- CART -->
+<div class="fixed right-0 top-0 w-80 h-full bg-black p-4">
+
+<h2 class="text-xl mb-4">견적</h2>
+
+<div id="cart"></div>
+
+<div id="total" class="mt-4 text-cyan-400"></div>
+
+<input id="name" placeholder="고객명" class="w-full p-2 mt-4 bg-gray-800">
+<input id="phone" placeholder="연락처" class="w-full p-2 mt-2 bg-gray-800">
+
+<button onclick="generatePDF()" class="w-full bg-cyan-400 text-black mt-4 p-2">
+PDF 견적서
+</button>
+
+<button onclick="checkout()" class="w-full bg-red-500 mt-2 p-2">
+결제하기
+</button>
+
+</div>
+
+<script>
+
+let cart = [];
+
+function add(name, price){
+  cart.push({name, price});
+  render();
+}
+
+function render(){
+  const el = document.getElementById("cart");
+
+  el.innerHTML = cart.map((i,idx)=>`
+    <div class="flex justify-between">
+      <span>${i.name}</span>
+      <span>₩${i.price.toLocaleString()}</span>
+    </div>
+  `).join("");
+
+  const total = cart.reduce((a,b)=>a+b.price,0);
+
+  document.getElementById("total").innerText =
+    "총합: ₩" + total.toLocaleString();
+}
+
+async function checkout(){
+
+  const res = await fetch("http://localhost:3000/api/checkout", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json"},
+    body: JSON.stringify({ items: cart })
+  });
+
+  const data = await res.json();
+  window.location.href = data.url;
+}
+
+function generatePDF(){
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  let y = 20;
+
+  doc.text("Tesla 견적서", 10, y);
+  y += 10;
+
+  const name = document.getElementById("name").value;
+  const phone = document.getElementById("phone").value;
+
+  doc.text("고객명: " + name, 10, y);
+  y += 10;
+  doc.text("연락처: " + phone, 10, y);
+  y += 10;
+
+  cart.forEach(i=>{
+    doc.text(`${i.name} - ₩${i.price}`, 10, y);
+    y += 10;
+  });
+
+  const total = cart.reduce((a,b)=>a+b.price,0);
+
+  doc.text("총합: ₩" + total, 10, y+10);
+
+  doc.save("견적서.pdf");
+}
+
+</script>
+
+</body>
+</html>
+import express from "express";
+import Stripe from "stripe";
+import cors from "cors";
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+const stripe = new Stripe("여기에_STRIPE_SECRET_KEY");
+
+app.post("/api/checkout", async (req, res) => {
+
+  const items = req.body.items;
+
+  const line_items = items.map(i => ({
+    price_data: {
+      currency: "krw",
+      product_data: { name: i.name },
+      unit_amount: i.price
+    },
+    quantity: 1
+  }));
+
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ["card"],
+    mode: "payment",
+    line_items,
+    success_url: "http://localhost:5500/success",
+    cancel_url: "http://localhost:5500/cancel"
+  });
+
+  res.json({ url: session.url });
+});
+
+app.listen(3000, ()=>console.log("Server running"));
