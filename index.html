@@ -1,207 +1,614 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>Tesla Consulting</title>
-<script src="https://cdn.tailwindcss.com"></script>
-
-<!-- PDF -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
-body {
-  background:#0b0b0b;
-  color:white;
-  font-family: system-ui;
-}
-
-.glass {
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.08);
-}
-
-.neon {
-  transition: all 0.3s ease;
-}
-
-.neon:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 0 25px rgba(0,240,255,0.4);
-}
-
-.fade {
-  opacity:0;
-  transform: translateY(20px);
-  transition: all 0.6s ease;
-}
-
-.show {
-  opacity:1;
-  transform: none;
-}
-
-.tesla-red {
-  color:#E82127;
-}
-
-.tesla-cyan {
-  color:#00F0FF;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tesla Vibe • 당신의 테슬라를 완성하다</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        
+        :root {
+            --tesla-red: #E82127;
+            --tesla-cyan: #00F0FF;
+        }
+        
+        body {
+            background: #0a0a0a;
+            color: white;
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        
+        .glass {
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .neon {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .neon:hover {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 
+                0 0 20px -5px var(--tesla-cyan),
+                0 0 30px -10px var(--tesla-cyan);
+        }
+        
+        .tesla-red { color: var(--tesla-red); }
+        .tesla-cyan { color: var(--tesla-cyan); }
+        
+        .hero-bg {
+            background: linear-gradient(90deg, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.85) 100%),
+                        url('https://picsum.photos/id/1015/2000/1200') center/cover no-repeat;
+        }
+        
+        .product-card {
+            transition: all 0.3s ease;
+        }
+        
+        .product-card:hover {
+            box-shadow: 0 25px 50px -12px rgb(0 240 255 / 0.15);
+        }
+        
+        .category-btn.active {
+            background: rgba(0, 240, 255, 0.15);
+            border-color: var(--tesla-cyan);
+            color: var(--tesla-cyan);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
+<body class="min-h-screen pb-20">
+    <!-- NAVBAR -->
+    <nav class="sticky top-0 z-50 glass border-b border-white/10">
+        <div class="max-w-screen-2xl mx-auto px-8 py-5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-[#E82127] rounded-full flex items-center justify-center text-xl font-bold">T</div>
+                <h1 class="text-2xl font-semibold tracking-tighter">Tesla Vibe</h1>
+                <span class="text-xs px-3 py-1 rounded-full bg-white/10 text-white/70">Consulting</span>
+            </div>
+            
+            <div class="flex items-center gap-8 text-sm font-medium">
+                <a href="#" onclick="showSection('home')" class="hover:text-cyan-400 transition-colors">홈</a>
+                <a href="#" onclick="showSection('products')" class="hover:text-cyan-400 transition-colors">액세서리</a>
+                <a href="#" onclick="showInHouse()" class="text-[#E82127] hover:text-red-400 transition-colors">인하우스 패키지</a>
+                <a href="https://github.com/YOUR-USERNAME/tesla-vibe" target="_blank" 
+                   class="flex items-center gap-2 hover:text-cyan-400 transition-colors">
+                    <span>GitHub</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 4L2 8l4 4" />
+                    </svg>
+                </a>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <div onclick="toggleCart()" class="relative cursor-pointer">
+                    <span class="text-2xl">🛒</span>
+                    <span id="cart-count-badge" 
+                          class="absolute -top-1 -right-1 bg-[#E82127] text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">0</span>
+                </div>
+                <button onclick="generatePDF()" 
+                        class="px-6 py-2.5 bg-[#E82127] hover:bg-red-600 rounded-xl font-semibold text-sm transition-colors">
+                    견적서 PDF
+                </button>
+            </div>
+        </div>
+    </nav>
 
-<body>
+    <!-- HERO -->
+    <section id="home" class="hero-bg text-center py-24">
+        <div class="max-w-3xl mx-auto px-6">
+            <div class="inline-flex items-center gap-2 bg-white/10 text-white/80 text-sm px-5 py-2 rounded-3xl mb-6">
+                <span class="relative flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00F0FF] opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-[#00F0FF]"></span>
+                </span>
+                ALIEXPRESS × TESLA OFFICIAL VIBE
+            </div>
+            
+            <h1 class="text-5xl md:text-7xl font-semibold tracking-[-2px] leading-none mb-6">
+                당신의 테슬라,<br>
+                <span class="tesla-cyan">완벽한 라이프스타일</span>로 완성하세요
+            </h1>
+            <p class="text-xl text-gray-400 max-w-xl mx-auto">
+                알리익스프레스 테슬라 전용 액세서리 48선 +<br>
+                우리 회사 프리미엄 인하우스 패키지 한눈에
+            </p>
+            
+            <div class="flex justify-center gap-4 mt-10">
+                <button onclick="showSection('products')" 
+                        class="px-10 py-5 bg-white text-black rounded-2xl font-semibold text-lg hover:scale-105 transition-transform flex items-center gap-3">
+                    <span>액세서리 바로 보기</span>
+                    <span class="text-2xl">→</span>
+                </button>
+                <button onclick="showInHouse()" 
+                        class="px-10 py-5 border border-white/30 hover:border-white/60 rounded-2xl font-semibold text-lg transition-colors">
+                    인하우스 패키지 보기
+                </button>
+            </div>
+            
+            <div class="mt-12 text-xs text-gray-500 flex items-center justify-center gap-8">
+                <div>Model 3 • Y • S • X • Cybertruck • Juniper</div>
+                <div class="flex items-center gap-1">
+                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    실시간 업데이트
+                </div>
+            </div>
+        </div>
+    </section>
 
-<!-- NAV -->
-<div class="flex justify-between items-center px-6 py-5 glass sticky top-0 z-50">
-  <div class="text-xl font-bold tesla-red">Tesla Consulting</div>
-  <div class="text-sm text-gray-400">Premium Package Advisor</div>
-</div>
+    <!-- PRODUCTS SECTION -->
+    <section id="products" class="max-w-screen-2xl mx-auto px-8 pt-12 hidden">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8">
+            <div>
+                <h2 class="text-4xl font-semibold">테슬라 전용 액세서리</h2>
+                <p class="text-gray-400">알리익스프레스 베스트셀러 48선 • 실시간 필터링</p>
+            </div>
+            
+            <!-- FILTERS -->
+            <div class="flex flex-wrap gap-3 mt-6 md:mt-0">
+                <!-- Search -->
+                <div class="relative">
+                    <input id="search-input" 
+                           onkeyup="filterProducts()"
+                           type="text" 
+                           placeholder="상품 검색 (예: 콘솔, 매트, 조명)"
+                           class="glass w-80 pl-10 pr-4 py-3 rounded-2xl text-sm focus:outline-none">
+                    <span class="absolute left-4 top-3.5 text-gray-400">🔎</span>
+                </div>
+                
+                <!-- Model Filter -->
+                <div class="flex gap-2">
+                    <button onclick="toggleModelFilter(this, 'all')" 
+                            class="model-filter-btn px-5 py-3 rounded-2xl text-sm font-medium border border-white/20 hover:border-cyan-400 active">전체</button>
+                    <button onclick="toggleModelFilter(this, '3')" 
+                            class="model-filter-btn px-5 py-3 rounded-2xl text-sm font-medium border border-white/20 hover:border-cyan-400">Model 3</button>
+                    <button onclick="toggleModelFilter(this, 'Y')" 
+                            class="model-filter-btn px-5 py-3 rounded-2xl text-sm font-medium border border-white/20 hover:border-cyan-400">Model Y</button>
+                    <button onclick="toggleModelFilter(this, 'S')" 
+                            class="model-filter-btn px-5 py-3 rounded-2xl text-sm font-medium border border-white/20 hover:border-cyan-400">Model S</button>
+                    <button onclick="toggleModelFilter(this, 'X')" 
+                            class="model-filter-btn px-5 py-3 rounded-2xl text-sm font-medium border border-white/20 hover:border-cyan-400">Model X</button>
+                </div>
+            </div>
+        </div>
 
-<!-- HERO -->
-<section class="text-center py-16 fade">
-  <h1 class="text-3xl md:text-5xl font-bold mb-4">
-    테슬라를 완성하는 프리미엄 패키지
-  </h1>
-  <p class="text-gray-400">
-    상담과 동시에 견적을 완성하세요
-  </p>
-</section>
+        <!-- CATEGORIES -->
+        <div id="category-list" class="flex flex-wrap gap-3 mb-10">
+            <!-- JS로 동적으로 생성 -->
+        </div>
 
-<!-- PRODUCTS -->
-<section class="px-6 pb-20">
-  <h2 class="mb-6 text-xl tesla-cyan">패키지 선택</h2>
+        <!-- PRODUCT GRID -->
+        <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+            <!-- JS로 동적으로 생성 -->
+        </div>
+    </section>
 
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+    <!-- IN-HOUSE SECTION (기존 패키지) -->
+    <section id="inhouse" class="max-w-screen-2xl mx-auto px-8 pt-12 hidden">
+        <h2 class="text-4xl font-semibold mb-2">우리 회사 인하우스 프리미엄 패키지</h2>
+        <p class="text-gray-400 mb-8">틴팅부터 전장까지 전문가 맞춤 시공</p>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div onclick="addToCart('틴팅 VEGA 풀세트', 500000)" class="glass p-6 rounded-3xl neon cursor-pointer">
+                <div class="text-[#E82127] text-sm mb-2">BEST</div>
+                <h3 class="font-bold text-xl mb-1">틴팅 VEGA</h3>
+                <p class="text-gray-400">프리미엄 비반사 세라믹 필름 • Model 3/Y 전용</p>
+                <div class="mt-6 flex justify-between items-end">
+                    <span class="tesla-cyan text-3xl font-semibold">₩500,000</span>
+                    <span class="text-xs bg-white/10 px-4 py-2 rounded-2xl">즉시 시공</span>
+                </div>
+            </div>
+            <div onclick="addToCart('SB-350 블랙박스', 300000)" class="glass p-6 rounded-3xl neon cursor-pointer">
+                <h3 class="font-bold text-xl mb-1">SB-350 블랙박스</h3>
+                <p class="text-gray-400">4K UHD + 5G Wi-Fi • 테슬라 전용 하드와이어링</p>
+                <div class="mt-6 flex justify-between items-end">
+                    <span class="tesla-cyan text-3xl font-semibold">₩300,000</span>
+                </div>
+            </div>
+            <div onclick="addToCart('프리미엄 하이패스', 150000)" class="glass p-6 rounded-3xl neon cursor-pointer">
+                <h3 class="font-bold text-xl mb-1">프리미엄 하이패스</h3>
+                <p class="text-gray-400">RF 단말기 + 테슬라 HUD 연동</p>
+                <div class="mt-6 flex justify-between items-end">
+                    <span class="tesla-cyan text-3xl font-semibold">₩150,000</span>
+                </div>
+            </div>
+            <div onclick="addToCart('실내 악세서리 풀패키지', 200000)" class="glass p-6 rounded-3xl neon cursor-pointer">
+                <h3 class="font-bold text-xl mb-1">실내 악세서리 풀패키지</h3>
+                <p class="text-gray-400">수납 + 조명 + 보호필름 세트</p>
+                <div class="mt-6 flex justify-between items-end">
+                    <span class="tesla-cyan text-3xl font-semibold">₩200,000</span>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <div onclick="add('틴팅 VEGA',500000)" class="glass p-5 rounded neon cursor-pointer">
-      <h3 class="font-bold mb-2">틴팅 VEGA</h3>
-      <p class="text-gray-400 text-sm">프리미엄 비반사 필름</p>
-      <p class="mt-2 tesla-cyan">₩500,000</p>
+    <!-- FLOATING CART -->
+    <div onclick="if(event.target.id==='cart-backdrop')toggleCart()" 
+         id="cart-backdrop"
+         class="hidden fixed inset-0 bg-black/70 z-[9999]"></div>
+    
+    <div id="cart-panel" 
+         class="hidden fixed top-0 right-0 w-96 h-screen glass shadow-2xl z-[10000] flex flex-col">
+        <div class="p-6 border-b border-white/10 flex justify-between items-center">
+            <h2 class="text-2xl font-semibold tesla-cyan">실시간 견적</h2>
+            <button onclick="toggleCart()" class="text-3xl leading-none">×</button>
+        </div>
+        
+        <div id="cart-items" class="flex-1 p-6 overflow-y-auto space-y-4">
+            <!-- JS로 채워짐 -->
+        </div>
+        
+        <div class="p-6 border-t border-white/10">
+            <div class="flex justify-between text-lg mb-6">
+                <span class="font-medium">총 견적 금액</span>
+                <span id="cart-total" class="tesla-cyan font-semibold text-3xl">₩0</span>
+            </div>
+            
+            <div class="space-y-3">
+                <input id="customer-name" type="text" placeholder="고객명" 
+                       class="w-full glass px-5 py-4 rounded-2xl outline-none">
+                <input id="customer-phone" type="text" placeholder="연락처 (010-XXXX-XXXX)" 
+                       class="w-full glass px-5 py-4 rounded-2xl outline-none">
+            </div>
+            
+            <button onclick="generatePDF()" 
+                    class="w-full mt-6 py-5 bg-[#E82127] hover:bg-red-600 rounded-3xl font-semibold text-lg">
+                📄 견적서 PDF 저장 &amp; 고객에게 공유
+            </button>
+            
+            <p class="text-center text-xs text-gray-500 mt-4">GitHub Pages에서 언제든지 업데이트 가능</p>
+        </div>
     </div>
 
-    <div onclick="add('블랙박스 SB-350',300000)" class="glass p-5 rounded neon cursor-pointer">
-      <h3 class="font-bold mb-2">블랙박스</h3>
-      <p class="text-gray-400 text-sm">고성능 녹화 시스템</p>
-      <p class="mt-2 tesla-cyan">₩300,000</p>
-    </div>
+    <script>
+        // ==================== 제품 데이터 (알리익스프레스 테슬라 전용 48개) ====================
+        const products = [
+            // 1. 실내 수납용품
+            {id:1, category:"실내 수납용품", name:"센터콘솔 트레이 오거나이저", model:["3","Y"], price:18900, desc:"Model 3/Y 전용 2단 수납 • 알리 베스트", image:"https://picsum.photos/id/1015/600/400"},
+            {id:2, category:"실내 수납용품", name:"트렁크 + 프렁크 풀 오거나이저 세트", model:["Y","3"], price:35900, desc:"접이식 + 방수", image:"https://picsum.photos/id/201/600/400"},
+            {id:3, category:"실내 수납용품", name:"글러브박스 정리함 + 서랍", model:["3","Y","S"], price:12900, desc:"테슬라 전용", image:"https://picsum.photos/id/301/600/400"},
+            {id:4, category:"실내 수납용품", name:"도어 포켓 정리 트레이", model:["Y"], price:9900, desc:"4개 세트", image:"https://picsum.photos/id/401/600/400"},
+            
+            // 2. 보호필름 & 커버
+            {id:5, category:"보호필름 & 커버", name:"15인치 센터 디스플레이 보호필름", model:["3","Y"], price:8900, desc:"강화유리 + 지문방지", image:"https://picsum.photos/id/501/600/400"},
+            {id:6, category:"보호필름 & 커버", name:"카본 도어실 + 시트레일 프로텍터", model:["Y","3"], price:15900, desc:"스크래치 방지", image:"https://picsum.photos/id/601/600/400"},
+            {id:7, category:"보호필름 & 커버", name:"페달 커버 알루미늄", model:["3","Y","S"], price:12900, desc:"스포티", image:"https://picsum.photos/id/701/600/400"},
+            {id:8, category:"보호필름 & 커버", name:"키 카드 & 키포브 커버", model:["all"], price:5900, desc:"실리콘 3종", image:"https://picsum.photos/id/801/600/400"},
+            
+            // 3. 매트 & 바닥 보호
+            {id:9, category:"매트 & 바닥 보호", name:"TPE 올웨더 3D 매트 풀세트", model:["Y"], price:89000, desc:"Model Y 전용", image:"https://picsum.photos/id/901/600/400"},
+            {id:10, category:"매트 & 바닥 보호", name:"트렁크 매트 + 프렁크 라이너", model:["3","Y"], price:45900, desc:"방수", image:"https://picsum.photos/id/1001/600/400"},
+            {id:11, category:"매트 & 바닥 보호", name:"카고 라이너 + 사이드 월", model:["Y"], price:32900, desc:"Model Y", image:"https://picsum.photos/id/1101/600/400"},
+            
+            // 4. 실내 조명
+            {id:12, category:"실내 조명", name:"앰비언트 라이트 64색 LED 키트", model:["3","Y"], price:29900, desc:"도어 + 풋웰", image:"https://picsum.photos/id/1201/600/400"},
+            {id:13, category:"실내 조명", name:"글러브박스 + 콘솔 무드등", model:["Y"], price:15900, desc:"자동 ON/OFF", image:"https://picsum.photos/id/1301/600/400"},
+            {id:14, category:"실내 조명", name:"도어 웰컴 라이트 프로젝션", model:["3","Y","S"], price:18900, desc:"Tesla 로고", image:"https://picsum.photos/id/1401/600/400"},
+            
+            // 5. 전장 & 테크
+            {id:15, category:"전장 & 테크", name:"무선 충전기 15W + 쿨링", model:["Y","3"], price:25900, desc:"공식 호환", image:"https://picsum.photos/id/1501/600/400"},
+            {id:16, category:"전장 & 테크", name:"S3XY 버튼 커스텀", model:["3","Y"], price:39900, desc:"4버튼 세트", image:"https://picsum.photos/id/1601/600/400"},
+            {id:17, category:"전장 & 테크", name:"HUD 헤드업 디스플레이", model:["Y"], price:89000, desc:"속도 + 네비", image:"https://picsum.photos/id/1701/600/400"},
+            {id:18, category:"전장 & 테크", name:"USB-C 허브 4포트", model:["all"], price:12900, desc:"테슬라 전용", image:"https://picsum.photos/id/1801/600/400"},
+            
+            // 6. 외부 액세서리
+            {id:19, category:"외부 액세서리", name:"20인치 휠캡 카본", model:["Y"], price:45900, desc:"4개 세트", image:"https://picsum.photos/id/1901/600/400"},
+            {id:20, category:"외부 액세서리", name:"머드플랩 풀세트", model:["3","Y"], price:32900, desc:"방수", image:"https://picsum.photos/id/2005/600/400"},
+            {id:21, category:"외부 액세서리", name:"리어 스포일러 카본", model:["Y"], price:89000, desc:"Juniper 호환", image:"https://picsum.photos/id/2101/600/400"},
+            {id:22, category:"외부 액세서리", name:"브레이크 캘리퍼 커버", model:["S","X"], price:25900, desc:"레드", image:"https://picsum.photos/id/2201/600/400"},
+            
+            // 7. 충전 액세서리
+            {id:23, category:"충전 액세서리", name:"J1772 → Tesla 어댑터", model:["all"], price:15900, desc:"공식 호환", image:"https://picsum.photos/id/2301/600/400"},
+            {id:24, category:"충전 액세서리", name:"충전 케이블 정리 홀더", model:["Y","3"], price:8900, desc:"벽걸이", image:"https://picsum.photos/id/2401/600/400"},
+            {id:25, category:"충전 액세서리", name:"포트 커버 + 실리콘 캡", model:["all"], price:6900, desc:"방수", image:"https://picsum.photos/id/2501/600/400"},
+            
+            // 8. 편의 & 라이프스타일
+            {id:26, category:"편의 & 라이프스타일", name:"선쉐이드 풀세트", model:["Y"], price:23900, desc:"자석", image:"https://picsum.photos/id/2601/600/400"},
+            {id:27, category:"편의 & 라이프스타일", name:"목쿠션 + 허리쿠션 세트", model:["all"], price:15900, desc:"메모리폼", image:"https://picsum.photos/id/2701/600/400"},
+            {id:28, category:"편의 & 라이프스타일", name:"펫 시트벨트 + 카시트", model:["Y"], price:32900, desc:"강아지 전용", image:"https://picsum.photos/id/2801/600/400"},
+            {id:29, category:"편의 & 라이프스타일", name:"휴대용 공기주입기", model:["all"], price:28900, desc:"디지털", image:"https://picsum.photos/id/2901/600/400"},
+            // 추가 19개 (더 많은 제품)
+            {id:30, category:"실내 수납용품", name:"언더시트 수납박스", model:["Y"], price:21900, desc:"숨김 보관", image:"https://picsum.photos/id/3001/600/400"},
+            {id:31, category:"보호필름 & 커버", name:"사이드미러 커버", model:["3","Y"], price:9900, desc:"카본", image:"https://picsum.photos/id/3101/600/400"},
+            {id:32, category:"매트 & 바닥 보호", name:"Model S/X 전용 TPE 매트", model:["S","X"], price:129000, desc:"럭셔리", image:"https://picsum.photos/id/3201/600/400"},
+            {id:33, category:"실내 조명", name:"트렁크 LED 조명", model:["Y"], price:13900, desc:"자동", image:"https://picsum.photos/id/3301/600/400"},
+            {id:34, category:"전장 & 테크", name:"대시캠 4K", model:["3"], price:89000, desc:"테슬라 연동", image:"https://picsum.photos/id/3401/600/400"},
+            {id:35, category:"외부 액세서리", name:"프론트 범퍼 가드", model:["Y"], price:45900, desc:"스톤칠드", image:"https://picsum.photos/id/3501/600/400"},
+            {id:36, category:"충전 액세서리", name:"휴대용 220V 충전기", model:["all"], price:159000, desc:"Level 2", image:"https://picsum.photos/id/3601/600/400"},
+            {id:37, category:"편의 & 라이프스타일", name:"여행용 트렁크 정리 큐브", model:["Y"], price:18900, desc:"5종", image:"https://picsum.photos/id/3701/600/400"},
+            {id:38, category:"실내 수납용품", name:"암레스트 박스", model:["3"], price:27900, desc:"커버 포함", image:"https://picsum.photos/id/3801/600/400"},
+            {id:39, category:"보호필름 & 커버", name:"스티어링 휠 보호커버", model:["Y"], price:12900, desc:"가죽", image:"https://picsum.photos/id/3901/600/400"},
+            {id:40, category:"매트 & 바닥 보호", name:"Cybertruck 매트", model:["cyber"], price:149000, desc:"전용", image:"https://picsum.photos/id/4001/600/400"},
+            {id:41, category:"실내 조명", name:"Juniper 전용 앰비언트", model:["Y"], price:39900, desc:"2025", image:"https://picsum.photos/id/4101/600/400"},
+            {id:42, category:"전장 & 테크", name:"폰마운트 대시보드", model:["all"], price:15900, desc:"자석", image:"https://picsum.photos/id/4201/600/400"},
+            {id:43, category:"외부 액세서리", name:"엠블럼 카본", model:["S"], price:8900, desc:"로고", image:"https://picsum.photos/id/4301/600/400"},
+            {id:44, category:"충전 액세서리", name:"케이블 연장 10m", model:["all"], price:45900, desc:"고속", image:"https://picsum.photos/id/4401/600/400"},
+            {id:45, category:"편의 & 라이프스타일", name:"시트 쿠션 통풍", model:["3"], price:32900, desc:"여름용", image:"https://picsum.photos/id/4501/600/400"},
+            {id:46, category:"실내 수납용품", name:"백미러 수납", model:["Y"], price:9900, desc:"티슈", image:"https://picsum.photos/id/4601/600/400"},
+            {id:47, category:"보호필름 & 커버", name:"루프 글라스 필름", model:["Y"], price:28900, desc:"UV차단", image:"https://picsum.photos/id/4701/600/400"},
+            {id:48, category:"편의 & 라이프스타일", name:"캠핑용 프렁크 매트", model:["3"], price:19900, desc:"야외", image:"https://picsum.photos/id/4801/600/400"}
+        ]
 
-    <div onclick="add('하이패스',150000)" class="glass p-5 rounded neon cursor-pointer">
-      <h3 class="font-bold mb-2">하이패스</h3>
-      <p class="text-gray-400 text-sm">RF 프리미엄 단말기</p>
-      <p class="mt-2 tesla-cyan">₩150,000</p>
-    </div>
+        let cart = []
+        let currentCategory = null
+        let currentModels = ['all']
 
-    <div onclick="add('실내 악세서리',200000)" class="glass p-5 rounded neon cursor-pointer">
-      <h3 class="font-bold mb-2">실내 악세서리</h3>
-      <p class="text-gray-400 text-sm">인테리어 업그레이드</p>
-      <p class="mt-2 tesla-cyan">₩200,000</p>
-    </div>
+        // Tailwind script
+        function initTailwind() {
+            tailwind.config = {
+                content: [],
+                theme: { extend: {} }
+            }
+        }
 
-  </div>
-</section>
+        // 카테고리 버튼 생성
+        function renderCategories() {
+            const cats = [...new Set(products.map(p => p.category))]
+            const container = document.getElementById('category-list')
+            container.innerHTML = `
+                <button onclick="filterByCategory(null)" 
+                        class="category-btn active px-6 py-3 rounded-3xl text-sm font-medium border border-white/20 hover:border-cyan-400">
+                    전체 (${products.length})
+                </button>
+                ${cats.map(cat => `
+                    <button onclick="filterByCategory('${cat}')" 
+                            class="category-btn px-6 py-3 rounded-3xl text-sm font-medium border border-white/20 hover:border-cyan-400">
+                        ${cat}
+                    </button>
+                `).join('')}
+            `
+        }
 
-<!-- CART -->
-<div class="fixed right-0 top-0 w-80 h-full glass p-6 overflow-y-auto">
+        // 제품 그리드 렌더링
+        function renderProducts(filteredProducts) {
+            const grid = document.getElementById('product-grid')
+            grid.innerHTML = filteredProducts.map(product => `
+                <div class="product-card glass rounded-3xl overflow-hidden">
+                    <div class="relative">
+                        <img src="${product.image}" alt="${product.name}" 
+                             class="w-full aspect-video object-cover">
+                        <div class="absolute top-3 right-3 bg-black/70 text-[10px] px-2.5 py-1 rounded-2xl font-medium">
+                            ${product.model.includes('all') ? 'All' : product.model.join('/')}
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <div class="font-semibold text-base leading-tight mb-1">${product.name}</div>
+                        <p class="text-gray-400 text-sm line-clamp-2">${product.desc}</p>
+                        <div class="flex items-baseline justify-between mt-6">
+                            <div>
+                                <span class="tesla-cyan text-2xl font-semibold">₩${product.price.toLocaleString()}</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="addToCart('${product.name}', ${product.price}); event.stopImmediatePropagation()" 
+                                        class="text-xs px-4 py-2 bg-white/10 hover:bg-cyan-400 hover:text-black rounded-2xl transition-colors">
+                                    담기
+                                </button>
+                                <a href="https://www.aliexpress.com/w/wholesale-tesla-${product.name.replace(/ /g,'-')}.html" target="_blank"
+                                   onclick="event.stopImmediatePropagation()"
+                                   class="text-xs px-4 py-2 border border-white/30 hover:border-white rounded-2xl transition-colors">
+                                    Ali 보기
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('')
+            
+            if (filteredProducts.length === 0) {
+                grid.innerHTML = `<p class="col-span-full text-center py-12 text-gray-400">해당 조건에 맞는 상품이 없습니다 😢</p>`
+            }
+        }
 
-<h2 class="text-xl mb-4 tesla-cyan">실시간 견적</h2>
+        // 필터링
+        function filterProducts() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase().trim()
+            
+            let filtered = products
+            
+            // 카테고리 필터
+            if (currentCategory) {
+                filtered = filtered.filter(p => p.category === currentCategory)
+            }
+            
+            // 모델 필터
+            if (!currentModels.includes('all')) {
+                filtered = filtered.filter(p => 
+                    p.model.some(m => currentModels.includes(m))
+                )
+            }
+            
+            // 검색
+            if (searchTerm) {
+                filtered = filtered.filter(p => 
+                    p.name.toLowerCase().includes(searchTerm) ||
+                    p.desc.toLowerCase().includes(searchTerm)
+                )
+            }
+            
+            renderProducts(filtered)
+        }
 
-<div id="cart" class="space-y-2"></div>
+        function filterByCategory(cat) {
+            currentCategory = cat
+            // active 클래스 토글
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.toggle('active', !cat && btn.textContent.includes('전체') || btn.textContent === cat)
+            })
+            filterProducts()
+        }
 
-<div id="total" class="mt-6 text-lg font-bold"></div>
+        function toggleModelFilter(btn, model) {
+            if (model === 'all') {
+                currentModels = ['all']
+                document.querySelectorAll('.model-filter-btn').forEach(b => b.classList.remove('active'))
+                btn.classList.add('active')
+            } else {
+                if (currentModels.includes('all')) currentModels = []
+                
+                if (currentModels.includes(model)) {
+                    currentModels = currentModels.filter(m => m !== model)
+                    btn.classList.remove('active')
+                } else {
+                    currentModels.push(model)
+                    btn.classList.add('active')
+                }
+                
+                if (currentModels.length === 0) currentModels = ['all']
+            }
+            filterProducts()
+        }
 
-<div class="mt-6 space-y-2">
-  <input id="name" placeholder="고객명"
-    class="w-full p-2 bg-black border border-gray-700 rounded">
-  <input id="phone" placeholder="연락처"
-    class="w-full p-2 bg-black border border-gray-700 rounded">
-</div>
+        // 카트
+        function addToCart(name, price) {
+            cart.push({name, price})
+            updateCart()
+            // 간단 토스트
+            const toast = document.createElement('div')
+            toast.style.cssText = 'position:fixed; bottom:20px; right:20px; background:#00F0FF; color:#000; padding:16px 24px; border-radius:9999px; font-weight:600; box-shadow:0 10px 15px -3px rgb(0 240 255)'
+            toast.textContent = `${name} 담겼습니다`
+            document.body.appendChild(toast)
+            setTimeout(() => toast.remove(), 2200)
+        }
 
-<button onclick="generatePDF()"
-  class="w-full mt-6 bg-[#E82127] py-3 rounded font-bold hover:opacity-80">
-  견적서 PDF 저장
-</button>
+        function updateCart() {
+            const container = document.getElementById('cart-items')
+            if (cart.length === 0) {
+                container.innerHTML = `<div class="text-center py-12 text-gray-400">아직 담긴 상품이 없습니다</div>`
+            } else {
+                container.innerHTML = cart.map((item, i) => `
+                    <div class="flex justify-between items-center glass p-4 rounded-2xl">
+                        <span class="font-medium">${item.name}</span>
+                        <div class="flex items-center gap-3">
+                            <span class="tesla-cyan">₩${item.price.toLocaleString()}</span>
+                            <button onclick="removeFromCart(${i}); event.stopImmediatePropagation()" class="text-red-400 text-xl">×</button>
+                        </div>
+                    </div>
+                `).join('')
+            }
+            
+            const total = cart.reduce((sum, item) => sum + item.price, 0)
+            document.getElementById('cart-total').innerHTML = `₩${total.toLocaleString()}`
+            document.getElementById('cart-count-badge').textContent = cart.length
+        }
 
-</div>
+        function removeFromCart(index) {
+            cart.splice(index, 1)
+            updateCart()
+        }
 
-<script>
+        function toggleCart() {
+            const panel = document.getElementById('cart-panel')
+            const backdrop = document.getElementById('cart-backdrop')
+            if (panel.classList.contains('hidden')) {
+                panel.style.display = 'flex'
+                backdrop.classList.remove('hidden')
+                updateCart()
+            } else {
+                panel.style.display = 'none'
+                backdrop.classList.add('hidden')
+            }
+        }
 
-let cart = [];
+        // PDF 생성 (기존 코드 개선)
+        function generatePDF() {
+            if (cart.length === 0) {
+                alert('상품을 먼저 담아주세요!')
+                return
+            }
+            
+            const { jsPDF } = window.jspdf
+            const doc = new jsPDF({orientation: "portrait", unit: "mm", format: "a4"})
+            
+            let y = 25
+            doc.setFontSize(22)
+            doc.setTextColor(232, 33, 39)
+            doc.text("Tesla Vibe Premium 견적서", 20, y)
+            y += 12
+            
+            doc.setFontSize(11)
+            doc.setTextColor(0, 0, 0)
+            const name = document.getElementById('customer-name').value || "미입력"
+            const phone = document.getElementById('customer-phone').value || "미입력"
+            doc.text(`고객명: ${name}`, 20, y)
+            y += 8
+            doc.text(`연락처: ${phone}`, 20, y)
+            y += 8
+            doc.text(`작성일: ${new Date().toLocaleDateString('ko-KR')}`, 20, y)
+            y += 15
+            
+            // 제품 리스트
+            doc.setFontSize(12)
+            cart.forEach(item => {
+                doc.text(`• ${item.name}`, 20, y)
+                doc.text(`₩${item.price.toLocaleString()}`, 140, y, {align: "right"})
+                y += 9
+            })
+            
+            const total = cart.reduce((a, b) => a + b.price, 0)
+            y += 8
+            doc.setFontSize(16)
+            doc.setTextColor(0, 240, 255)
+            doc.text(`총 견적 금액: ₩${total.toLocaleString()}`, 20, y)
+            
+            // 푸터
+            y += 25
+            doc.setFontSize(10)
+            doc.setTextColor(100, 100, 100)
+            doc.text("Tesla Vibe Consulting • 인하우스 틴팅 + 알리 액세서리 맞춤 컨설팅", 20, y)
+            doc.text("GitHub Pages 배포용 • 언제든 업데이트 가능", 20, y + 6)
+            
+            doc.save(`Tesla_Vibe_견적서_${name}.pdf`)
+            toggleCart()
+        }
 
-function add(name, price){
-  cart.push({name, price});
-  render();
-}
+        function showSection(section) {
+            document.getElementById('home').classList.add('hidden')
+            document.getElementById('products').classList.add('hidden')
+            document.getElementById('inhouse').classList.add('hidden')
+            
+            if (section === 'products') {
+                document.getElementById('products').classList.remove('hidden')
+            } else if (section === 'home') {
+                document.getElementById('home').classList.remove('hidden')
+            }
+        }
 
-function render(){
-  const el = document.getElementById("cart");
+        function showInHouse() {
+            document.getElementById('home').classList.add('hidden')
+            document.getElementById('products').classList.add('hidden')
+            document.getElementById('inhouse').classList.remove('hidden')
+        }
 
-  if(cart.length === 0){
-    el.innerHTML = "<p class='text-gray-500'>선택된 항목 없음</p>";
-  } else {
-    el.innerHTML = cart.map((i,idx)=>`
-      <div class="flex justify-between border-b border-gray-800 pb-1">
-        <span>${i.name}</span>
-        <span class="tesla-cyan">₩${i.price.toLocaleString()}</span>
-      </div>
-    `).join("");
-  }
-
-  const total = cart.reduce((a,b)=>a+b.price,0);
-
-  document.getElementById("total").innerText =
-    "총합: ₩" + total.toLocaleString();
-}
-
-function generatePDF(){
-
-  if(cart.length === 0){
-    alert("상품을 선택하세요");
-    return;
-  }
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  let y = 20;
-
-  doc.setFontSize(16);
-  doc.text("Tesla Premium 견적서", 10, y);
-
-  y += 10;
-
-  const name = document.getElementById("name").value || "-";
-  const phone = document.getElementById("phone").value || "-";
-
-  doc.setFontSize(12);
-  doc.text("고객명: " + name, 10, y);
-  y += 8;
-  doc.text("연락처: " + phone, 10, y);
-  y += 10;
-
-  cart.forEach(i=>{
-    doc.text(`${i.name} - ₩${i.price.toLocaleString()}`, 10, y);
-    y += 8;
-  });
-
-  const total = cart.reduce((a,b)=>a+b.price,0);
-
-  doc.text("총합: ₩" + total.toLocaleString(), 10, y+5);
-
-  doc.save("Tesla_견적서.pdf");
-}
-
-// 애니메이션
-setTimeout(()=>{
-  document.querySelectorAll(".fade").forEach(e=>e.classList.add("show"));
-},200);
-
-render();
-
-</script>
-
+        // 초기화
+        function initialize() {
+            initTailwind()
+            renderCategories()
+            renderProducts(products) // 처음엔 전체
+            
+            // 키보드 ESC로 카트 닫기
+            document.addEventListener('keydown', e => {
+                if (e.key === "Escape") {
+                    const panel = document.getElementById('cart-panel')
+                    if (panel.style.display === 'flex') toggleCart()
+                }
+            })
+            
+            console.log('%c🚀 Tesla Vibe 페이지 로드 완료! GitHub Pages에 바로 업로드 OK', 'color:#00F0FF; font-size:13px')
+        }
+        
+        window.onload = initialize
+    </script>
 </body>
 </html>
