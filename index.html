@@ -6,156 +6,86 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
-body { background:#050505; font-family:system-ui; color:white; }
-.glass { background:rgba(255,255,255,0.05); backdrop-filter:blur(14px); border:1px solid rgba(255,255,255,0.1);}
-.card:hover { transform:translateY(-5px); box-shadow:0 20px 40px rgba(0,240,255,0.15);}
-.tesla-cyan { color:#00F0FF; }
-.hero {
-  background:linear-gradient(to bottom, rgba(0,0,0,0.7), #050505),
-  url('https://images.unsplash.com/photo-1619767886558-efdc259cde1a?q=80&w=2000');
-  background-size:cover;
-}
+body { background:#050505; color:white; font-family:system-ui;}
+.glass { background:rgba(255,255,255,0.05); backdrop-filter:blur(14px);}
+.card:hover { transform:translateY(-6px); box-shadow:0 20px 40px rgba(0,240,255,0.15);}
 </style>
 </head>
 
 <body>
 
 <!-- HERO -->
-<section class="hero text-center py-28">
-<h1 class="text-5xl font-bold mb-4">테슬라 라이프스타일 완성</h1>
-<p class="text-gray-400">베스트 액세서리 + 더 스미스 패키지</p>
+<section class="text-center py-20">
+<h1 class="text-4xl font-bold mb-4">Tesla Lifestyle Platform</h1>
+<p class="text-gray-400">실시간 알리익스프레스 + 더 스미스 패키지</p>
 </section>
 
-<!-- 액세서리 -->
-<section class="px-8 py-12">
-<h2 class="text-2xl mb-6">AliExpress 베스트 액세서리</h2>
-
-<div id="grid" class="grid grid-cols-2 md:grid-cols-4 gap-6"></div>
-</section>
-
-<!-- 더스미스 패키지 -->
-<section class="px-8 py-12">
-<h2 class="text-2xl mb-6">더 스미스 프리미엄 패키지</h2>
-
-<div class="glass p-6 rounded-xl">
-<h3 class="text-xl mb-2">Tesla Premium Package</h3>
-
-<ul class="text-gray-300 text-sm space-y-1">
-<li>✔ 신차검수 (기본)</li>
-<li>✔ 틴팅 VEGA</li>
-<li>✔ 루프 열차단 PPF (IR 97%)</li>
-<li>✔ PPF 8종</li>
-<li>✔ 유리막 코팅</li>
-<li>✔ 유리 발수</li>
-</ul>
-
-<div class="mt-6">
-<p class="line-through text-gray-500">정상가 ₩2,500,000</p>
-<p class="text-3xl text-[#E82127] font-bold">₩1,500,000</p>
+<!-- CATEGORY -->
+<div class="flex gap-4 justify-center mb-10">
+<button onclick="load('interior')">실내</button>
+<button onclick="load('exterior')">외장</button>
+<button onclick="load('lighting')">조명</button>
+<button onclick="load('storage')">수납</button>
+<button onclick="load('protection')">보호</button>
 </div>
 
-<button onclick="add('더 스미스 패키지',1500000)"
-class="mt-4 w-full bg-[#E82127] py-3 rounded">
-패키지 담기
-</button>
-
-</div>
-</section>
+<!-- GRID -->
+<div id="grid" class="grid grid-cols-2 md:grid-cols-4 gap-6 px-6"></div>
 
 <!-- CART -->
-<div id="cartPanel" class="fixed right-0 top-0 w-80 h-full bg-black p-6">
-<h2 class="text-xl mb-4">견적</h2>
-<div id="cartItems"></div>
-<div id="total" class="mt-4 text-cyan-400"></div>
-
-<button onclick="generatePDF()" class="mt-6 w-full bg-red-500 py-3 rounded">
-PDF 저장
-</button>
+<div class="fixed right-0 top-0 w-80 h-full bg-black p-6">
+<h2>견적</h2>
+<div id="cart"></div>
+<div id="total"></div>
+<button onclick="generatePDF()" class="bg-red-500 w-full py-2 mt-4">PDF</button>
 </div>
 
 <script>
 
-// 실제 베스트 상품 (2026 기준 샘플)
-const products = [
-{
-name:"센터콘솔 트레이",
-price:18900,
-image:"https://ae01.alicdn.com/kf/Sa6d1b5f.jpg",
-link:"https://www.aliexpress.com/item/1005006789012345.html"
-},
-{
-name:"트렁크 정리함",
-price:35900,
-image:"https://ae01.alicdn.com/kf/Sb1f6d4c.jpg",
-link:"https://www.aliexpress.com/item/1005006789012346.html"
-},
-{
-name:"LED 무드등",
-price:24900,
-image:"https://ae01.alicdn.com/kf/Sdfd7e3.jpg",
-link:"https://www.aliexpress.com/item/1005006789012347.html"
-},
-{
-name:"매트 세트",
-price:49900,
-image:"https://ae01.alicdn.com/kf/Sff34dd.jpg",
-link:"https://www.aliexpress.com/item/1005006789012348.html"
-}
-]
-
 let cart=[]
 
-function render(){
-document.getElementById("grid").innerHTML =
-products.map(p=>`
-<div class="glass p-4 rounded-xl card">
-<img src="${p.image}" class="mb-3">
-<h3>${p.name}</h3>
-<p class="tesla-cyan">₩${p.price}</p>
+async function load(category){
 
-<div class="flex gap-2 mt-3">
-<button onclick="add('${p.name}',${p.price})"
-class="flex-1 bg-white text-black py-2 rounded">
-담기
-</button>
+  const res = await fetch(`https://너서버주소/api/products?category=${category}`);
+  const data = await res.json();
 
-<a href="${p.link}" target="_blank"
-class="flex-1 border border-white py-2 text-center rounded">
-Ali 보기
-</a>
-</div>
-</div>
-`).join("")
+  document.getElementById("grid").innerHTML =
+    data.map(p=>`
+      <div class="glass p-4 rounded card">
+        <img src="${p.image}">
+        <h3>${p.name}</h3>
+        <p>${p.price}</p>
+
+        <div class="flex gap-2 mt-2">
+          <button onclick="add('${p.name}',${parseInt(p.price)})"
+          class="bg-white text-black px-2 py-1">담기</button>
+
+          <a href="${p.link}" target="_blank"
+          class="border px-2 py-1">Ali</a>
+        </div>
+      </div>
+    `).join("")
 }
 
 function add(name,price){
-cart.push({name,price})
-updateCart()
+  cart.push({name,price})
+  render()
 }
 
-function updateCart(){
-document.getElementById("cartItems").innerHTML =
-cart.map(i=>`
-<div class="flex justify-between">
-<span>${i.name}</span>
-<span>₩${i.price}</span>
-</div>
-`).join("")
+function render(){
+  document.getElementById("cart").innerHTML =
+    cart.map(i=>`<p>${i.name} ₩${i.price}</p>`).join("")
 
-const total=cart.reduce((a,b)=>a+b.price,0)
-document.getElementById("total").innerText="₩"+total.toLocaleString()
+  const total=cart.reduce((a,b)=>a+b.price,0)
+  document.getElementById("total").innerText="₩"+total
 }
 
 function generatePDF(){
-const el=document.createElement("div")
-el.innerHTML=cart.map(i=>`<p>${i.name} ₩${i.price}</p>`).join("")
-html2pdf().from(el).save()
+  html2pdf().from(document.getElementById("cart")).save()
 }
 
-render()
+load("interior")
 
 </script>
 
